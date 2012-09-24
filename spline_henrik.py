@@ -89,9 +89,9 @@ def interpolation(interP,knotP=None):
 
     
     return Spline(ctrlP,knotP)
-    
-    
-    
+
+
+
 def basisFunction(index, knotP):
     """
         Evaluates the basis function N for j given the knot points and returns
@@ -101,32 +101,19 @@ def basisFunction(index, knotP):
             knotP: knot points, (L+4 x 1) matrix
                 default: equidistant on [0,1]
     """
-    
-    def n(x, order):
-        """
-            Evaluates the basis function at x for a given order
-            Arguments:
-                x: point to evaluate
-                order: the order of the spline
-        """
-        if order!=0:
-            if knotP[index+order]-knotP[index]==0:
-                den1=0
-            else:
-                den1=1/(knotP[index+order]-knotP[index])
-            if knotP[index+order+1]-knotP[index+1]==0:
-                den2=0
-            else:
-                den2=1/(knotP[index+order+1]-knotP[index+1])
-            nj=(x-knotP[index])*den1*n(x,order-1)+(knotP[index+order+1]-x)*den2*basisFunction(index+1,knotP)(x,order-1)
-        else:
-            if knotP[index]==knotP[index+1]:
-                return 0
-            elif knotP[index]<=x<knotP[index+1]:
-                return 1
-            else:
-                return 0
-        return nj
+
+    def n(x,k=3,i=index):
+        if k==0:
+            return 1.*(n.knotP[i]<=x<n.knotP[i+1])
+        den1 = (n.knotP[i+k] - n.knotP[i])
+        den2 = (n.knotP[i+k+1] - n.knotP[i+1])
+        if den1 != 0:
+            den1 = 1./den1
+        if den2 != 0:
+            den2 = 1./den2
+        return (x - n.knotP[i])*den1*n(x,k-1,i) + (1 - (x-n.knotP[i+1])*den2)*n(x,k-1,i+1)
+    n.knotP = knotP
+
     return n
 
 
