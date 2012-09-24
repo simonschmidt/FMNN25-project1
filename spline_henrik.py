@@ -40,8 +40,10 @@ class Spline(object):
         for r in xrange(1,h+1):
             j=r # Nobody likes indices
             for i in xrange(k-p+r,k-s+1):
-                # TODO 0/0
-                a = (x - self.knotP[i])/(self.knotP[i+p-r+1]-self.knotP[i])
+                if (self.knotP[i+p-r+1]-self.knotP[i]):
+                    a = (x - self.knotP[i])/(self.knotP[i+p-r+1]-self.knotP[i])
+                else:
+                    a=0
                 cp[j,r]=(1-a)*cp[j-1,r-1] + a*cp[j,r-1]
                 j=j+1
         return cp[-1,-1]
@@ -80,7 +82,7 @@ def interpolation(interP,knotP=None):
     for i in xrange(nip):
         fun=basisFunction(i,knotP)
         for k in xrange(nip):
-            nMatrix[i,k]=fun(xi[k],3)
+            nMatrix[k,i]=fun(xi[k],3)
     print nMatrix
     print knotP
 
