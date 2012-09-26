@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Spline(object):
@@ -23,7 +24,8 @@ class Spline(object):
         m = np.zeros((len(self.knots)-3,3))
 
         for i in xrange(3):
-            m[:len(m)-i,i] = self.knots[3:len(self.knots)-i] - self.knots[i:len(m)]
+            m[:len(m)-i,i] = self.knots[3:len(self.knots)-i] - \
+                             self.knots[i:len(m)]
 
         indx = (m != 0)
         m[indx] = 1./m[indx]
@@ -34,31 +36,41 @@ class Spline(object):
 
         if not isinstance(u,np.ndarray):
             u = np.array([u])
-
-        I = np.searchsorted(self.knots[1:-1], u,side='left')
-
-        if (I < 2).any() or (I > (len(self.cp) -1)).any():
+            
+        if (u < self.knots[2]).any() or (u >= self.knots[-3]).any():
             raise ValueError('u out of range!')
 
-        d = self.cp[np.repeat(I,4) + np.tile(self.d0,len(I))]
+        I = np.searchsorted(self.knots[1:-3], u,side='right')
+        leI = len(I)
+
+        d = self.cp[np.repeat(I,4) + np.tile(self.d0,leI)]
         indx = np.ones(4,dtype='bool')
         indx[-1] = False
 
         for k in xrange(3):
-            a = (self.knots[np.repeat(I,3-k) + np.tile(np.arange(1,4-k),len(I))] - \
-                np.repeat(u,3-k)) * \
-                self.da[:,k][np.repeat(I,3-k) + np.tile(self.d0[:-(k+1)],len(I))]
+            rpI = np.repeat(I,3-k)
+            a = ((self.knots[rpI + np.tile(np.arange(1,4-k),leI)] - 
+                np.repeat(u,3-k)) * 
+                self.da[:,k][rpI + np.tile(self.d0[:-(k+1)],leI)]).reshape(-1,1)
 
-
-            d = (a).reshape(-1,1) * d[np.tile(indx[k:],len(I))] + \
-                (1 - a).reshape(-1,1) * d[np.tile(np.roll(indx[k:],1),len(I))]
+            d = a * d[np.tile(indx[k:],leI)] + \
+                (1 - a) * d[np.tile(np.roll(indx[k:],1),leI)]
 
         return d
 
     def plot(self,showCP=True,npoints=200):
-        x = self(linspace(self.knots[2]+0.0001,self.knots[-3]))
+        x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=False))
+        k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
+        plt.plot(x[:,0],x[:,1],color='red')
+        plt.hold(True)
+        plt.plot(k[:,0],k[:,1],'x',color='red')
         if showCP:
-            plot(self.cp[:,0],self.cp[:,1],'.')
-            hold(True)
-        plot(x[:,0],x[:,1])
-        show()
+            plt.plot(self.cp[:,0],self.cp[:,1],'--',color='blue')
+            plt.plot(self.cp[:,0],self.cp[:,1],'o',color='blue')
+        xmin,xmax = self.cp[:,0].min(), self.cp[:,0].max()
+        ymin,ymax = self.cp[:,1].min(), self.cp[:,1].max()
+        xbrdr = (xmax - xmin)*0.05
+        ybrdr = (ymax - ymin)*0.05
+        plt.xlim(xmin - xbrdr, xmax + xbrdr)
+        plt.ylim(ymin - ybrdr, ymax + ybrdr)
+        plt.show()
