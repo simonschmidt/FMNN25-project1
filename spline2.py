@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.linalg as sl
 
 class Spline(object):
     """
@@ -132,7 +133,8 @@ class Spline(object):
 
     def plot(self,showCP=True,npoints=200):
         """
-        A method to plot the spline by calling a range of points. 
+        A method to plot the spline by calling a range of points. Plotting is only 
+        possible when the dimension of the control points is equal to 2. 
         Arguments:
             
             * showCP: boolean to control the plotting of control points
@@ -142,6 +144,8 @@ class Spline(object):
                 * default is set to 200
 
         """
+        if not self.cp.shape[1] == 2:
+            raise ValueError('Sorry but I only plot 2d')
         
         x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=0))
         k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
@@ -158,3 +162,80 @@ class Spline(object):
         plt.xlim(xmin - xbrdr, xmax + xbrdr)
         plt.ylim(ymin - ybrdr, ymax + ybrdr)
         plt.show()
+
+def basisFunction(index, knotP):
+    """
+    Evaluates the basis function N for j given the knot points and returns
+    a function
+    Arguments:
+        * index: index
+        * knotP: knot points, (L+4 x 1) matrix
+            * default: equidistant on [0,1]
+    """
+
+    def n(x,k=3,i=index):
+        if k==0:
+            return 1.*(n.knotP[i]<=x<n.knotP[i+1])
+        den1 = (n.knotP[i+k] - n.knotP[i])
+        den2 = (n.knotP[i+k+1] - n.knotP[i+1])
+        if den1 != 0:
+            den1 = 1./den1
+        if den2 != 0:
+            den2 = 1./den2
+        return (x - n.knotP[i])*den1*n(x,k-1,i) + (1 - (x-n.knotP[i+1])*den2)*n(x,k-1,i+1)
+    n.knotP = knotP
+
+    return n
+    
+def interpolation(interP,knots=None):
+    """
+        Interpolates the given points and returns an object of the Spline class 
+        Arguments:
+            * interP: interpolation points, (L x 2) matrix
+            * knotP: knot points, (L+4 x 1) matrix
+                * default: equidistant on [0,1]
+    """
+    nip=len(interP)
+    ctrlP=np.zeros((nip,2))
+    if knots != None:
+            knots = np.array(knots,dtype='float')
+            if len(ctrlP) + 2 != len(knots):
+                raise ValueError('knots is of the wrong size')
+
+    else:
+        knots = np.hstack((np.zeros(2),
+                                    np.linspace(0,1,len(ctrlP)+2),
+                                    np.ones(2)))
+    xi=(knots[2:-4]+knots[3:-3]+knots[4:-2])/3
+    nMatrix=np.zeros((len(xi),len(xi)))
+    for i in xrange(len(xi)):
+        fun=basisFunction(i,knots)
+        for k in xrange(len(xi)):
+            nMatrix[k,i]=fun(xi[k],3)
+    print nMatrix
+
+    ctrlP[:,0]=sl.solve(nMatrix,interP[:,0])
+    ctrlP[:,1]=sl.solve(nMatrix,interP[:,1])
+    
+    print
+    print ctrlP
+    
+    return Spline(ctrlP)
+
+    
+# Some examples
+def ex1():
+    cp = np.array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
+    s=Spline(cp)
+    s.plot()
+
+def ex2(k=12):
+    cp = randn(k,2)
+    s = Spline(cp)
+    s.plot()
+    
+def ex3():
+    cp = np.array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
+    s=interpolation(cp)
+    s.plot()
+    plot(cp[:,0],cp[:,1])
