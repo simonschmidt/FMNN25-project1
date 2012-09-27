@@ -1,48 +1,51 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
+#import matplotlib.pyplot as plt
 
 class Spline(object):
     """
-        A class that produces splines using de Boors algorithm and takes control
-        points as input and can take knot point if the user want to specify them,
-        otherwise they are set to be equidistant. 
-        The class has three functions:
-            __init__:   initialize the class and set some global variables
-            __call__:   evaluates the spline at a point x or a vector x
-            plot:       plots the curve with a given set of points. 
+    
+    A class that produces splines using de Boors algorithm and takes control
+    points as input and can take knot point if the user want to specify them,
+    otherwise they are set to be equidistant. 
+    
+    The class has three functions:
+        
+    * __init__:   initialize the class and set some global variables
+    * __call__:   evaluates the spline at a point x or a vector x
+    * plot:       plots the curve with a given set of points. 
+    
     """
 
     def __init__(self, ctrlPs, knots=None):
         """
-<<<<<<< HEAD
 
-=======
         Arguments:
-                ctrlP: a (L x 2) matrix with control points that determines the
-                    curve.
-                knots: a (L+2) array, if left empty equidistant points will be 
-                    taken instead.
+            
+        * ctrlP: a (L x 2) matrix with control points that determines the curve.
+        * knots: a (L+2) array, if left empty equidistant points will be taken instead.
+        
         Initialize a object of the class and sets the following variables:
-            da: a matrix with the denominators of alpha in the de Boor 
-                algorithm.
-            d0: an array to make vectorization of the __call__ method to work
->>>>>>> A begining to Sphinx
+        
+        * da: a matrix with the denominators of alpha in the de Boor algorithm.
+        * d0: an array to make vectorization of the __call__ method to work
+        
+        .. testcode::
+            
+            cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
+            gp = array([0,0,0,0,1,1,1,2,2,2,2])
+            s=Spline(cp,gp) 
+
         """
 
         self.cp = np.array(ctrlPs,dtype='float')
-
         if knots != None:
-<<<<<<< HEAD
             self.knots = np.array(knots,dtype='float')
-
-=======
-            if len(ctrlPs) + 2 == len(knots)
+            if len(ctrlPs) + 2 == len(knots):
                 self.knots = np.array(knots,dtype='float')
             else:
                 raise ValueError('knots is of the wrong size')
            
->>>>>>> A begining to Sphinx
+
         else:
             self.knots = np.linspace(0,1,len(ctrlPs) + 2)
 
@@ -62,14 +65,18 @@ class Spline(object):
         return m
 
     def __call__(self,u):
-<<<<<<< HEAD
-
-=======
         """
-                
+        .. testcode::
+            
+            u = s(0.5)
+            v = s(linspace(0,1,5))
+            print u
+            pritn v
+            
+        .. testoutput::
+            
         """
         
->>>>>>> A begining to Sphinx
         if not isinstance(u,np.ndarray):
             u = np.array([u])
             
@@ -95,6 +102,10 @@ class Spline(object):
         return d
 
     def plot(self,showCP=True,npoints=200):
+        """
+
+        """
+        
         x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=False))
         k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
         plt.plot(x[:,0],x[:,1],color='red')
