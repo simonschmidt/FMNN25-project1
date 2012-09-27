@@ -73,9 +73,17 @@ otherwise they are set to be equidistant.</p>
 <tt class="descname">__init__</tt><big>(</big><em>ctrlPs</em>, <em>knots=None</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Arguments:   </dt>
+<dd><ul class="first last">
+<li><p class="first">ctrlP: a (L x 2) matrix with control points that determines the curve.</p>
+</li>
+<li><dl class="first docutils">
+<dt>knots: a (L+2) array, if left empty equidistant points will be taken instead.</dt>
 <dd><ul class="first last simple">
-<li>ctrlP: a (L x 2) matrix with control points that determines the curve.</li>
-<li>knots: a (L+2) array, if left empty equidistant points will be taken instead.</li>
+<li>default is set to empty</li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </dd>
 <dt>Initialize a object of the class and sets the following variables:</dt>
@@ -86,8 +94,7 @@ otherwise they are set to be equidistant.</p>
 </dd>
 </dl>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">cp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">gp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">s</span><span class="o">=</span><span class="n">Spline</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span><span class="n">gp</span><span class="p">)</span> 
+<span class="n">s</span><span class="o">=</span><span class="n">Spline</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span> 
 </pre></div>
 </div>
 </dd></dl>
@@ -95,21 +102,24 @@ otherwise they are set to be equidistant.</p>
 <dl class="method">
 <dt id="spline2.Spline.__call__">
 <tt class="descname">__call__</tt><big>(</big><em>u</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
+<dd><p>Uses a vectorized version of the de Boor algorithm to calculate the position of a specific u.</p>
+<dl class="docutils">
 <dt>Arguments:</dt>
 <dd><ul class="first last simple">
 <li>u: either a number or an array to be evaluated, must be in [0,1] or [knot[1], knot[-1]]</li>
 </ul>
 </dd>
 </dl>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
-<span class="k">print</span> <span class="n">u</span>
-<span class="k">print</span> <span class="n">v</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">v</span>
 </pre></div>
 </div>
-<div class="highlight-none"><div class="highlight"><pre>print u
-print v
+<div class="highlight-none"><div class="highlight"><pre>[[ 4.  1.]]
+
+[[ 0.33333333  1.83333333]
+ [ 4.          1.        ]]
 </pre></div>
 </div>
 </dd></dl>
@@ -117,7 +127,29 @@ print v
 <dl class="method">
 <dt id="spline2.Spline.plot">
 <tt class="descname">plot</tt><big>(</big><em>showCP=True</em>, <em>npoints=200</em><big>)</big><a class="headerlink" href="#spline2.Spline.plot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A method to plot the spline by calling a range of points. 
+Arguments:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>showCP: boolean to control the plotting of control points</dt>
+<dd><ul class="first last simple">
+<li>default is set to True</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>npoints: number of points to plot</dt>
+<dd><ul class="first last simple">
+<li>default is set to 200</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
 
 </dd></dl>
 

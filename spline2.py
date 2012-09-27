@@ -21,6 +21,7 @@ class Spline(object):
         Arguments:   
             * ctrlP: a (L x 2) matrix with control points that determines the curve.
             * knots: a (L+2) array, if left empty equidistant points will be taken instead.
+                * default is set to empty
         
         Initialize a object of the class and sets the following variables:
             * da: a matrix with the denominators of alpha in the de Boor algorithm.
@@ -29,8 +30,7 @@ class Spline(object):
         .. testcode::
             
             cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
-            gp = array([0,0,0,0,1,1,1,2,2,2,2])
-            s=Spline(cp,gp) 
+            s=Spline(cp) 
 
         """
 
@@ -44,12 +44,21 @@ class Spline(object):
            
 
         else:
-            self.knots = np.linspace(0,1,len(ctrlPs) + 2)
+            self.knots = np.zeros((len(ctrlPs)+3))
+            self.knots[2:-2] = np.linspace(0,1,len(ctrlPs))[1:-2]
+            self.knots[0] = self.knots[2]
+            self.knots[1] = self.knots[2]
+            self.knots[-1] = self.knots[-3]
+            self.knots[-2] = self.knots[-3]
+            #self.knots = np.linspace(0,1,len(ctrlPs)+2)
 
         self.da = self._calcDenomAlpha()
         self.d0 = np.array([-2,-1,0,1])
 
     def _calcDenomAlpha(self):
+        """
+        Private function that calculates the denominator in the alphas.
+        """
         m = np.zeros((len(self.knots)-3,3))
 
         for i in xrange(3):
@@ -63,27 +72,26 @@ class Spline(object):
 
     def __call__(self,u):
         """
+        Uses a vectorized version of the de Boor algorithm to calculate the position of a specific u.       
+        
         Arguments:
             * u: either a number or an array to be evaluated, must be in [0,1] or [knot[1], knot[-1]]
         
-        .. doctest::
-            >>> cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
-            >>> gp = array([0,0,0,0,1,1,1,2,2,2,2])
-            >>> s=Spline(cp,gp) 
-            >>> u = s(0.5)
-            >>> u
-            array([[ 4.,  1.]])
-            >>> v = s(linspace(0,1,5)[1:-1])
-        
+        Example
+        -------
         .. testcode::
             
-            u = s(0.5)
-            v = s(linspace(0,1,5))
+            >>> u = s(0.5)
+            >>> v = s(linspace(0,1,5)[1:-2])
+            >>> print u
+            >>> print v
             
         .. testoutput::
             
-            print u
-            print v
+            [[ 4.  1.]]
+            
+            [[ 0.33333333  1.83333333]
+             [ 4.          1.        ]]
             
         """
         
@@ -113,6 +121,14 @@ class Spline(object):
 
     def plot(self,showCP=True,npoints=200):
         """
+        A method to plot the spline by calling a range of points. 
+        Arguments:
+            
+            * showCP: boolean to control the plotting of control points
+                * default is set to True
+                
+            * npoints: number of points to plot
+                * default is set to 200
 
         """
         
