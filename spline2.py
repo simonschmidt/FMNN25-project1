@@ -38,6 +38,11 @@ class Spline(object):
         """
 
         self.cp = np.array(ctrlPs,dtype='float')
+        if self.cp.size < 3:
+            raise ValueError('There mest be at least 3 control points.')
+        if self.cp.size == self.cp.shape[0]:
+            self.cp = self.cp.reshape(-1,1)
+        
         if knots != None:
             self.knots = np.array(knots,dtype='float')
             if len(ctrlPs) + 2 != len(knots):
