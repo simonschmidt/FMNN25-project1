@@ -45,7 +45,7 @@ class Spline(object):
 
         else:
             self.knots = np.hstack((np.zeros(2),
-                                    np.linspace(0,1,len(ctrlPs)),
+                                    np.linspace(0,1,len(ctrlPs)-2),
                                     np.ones(2))
 
             #self.knots = np.zeros((len(ctrlPs)+3))
