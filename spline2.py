@@ -13,7 +13,6 @@ class Spline(object):
 
         if knots != None:
             self.knots = np.array(knots,dtype='float')
-
         else:
             self.knots = np.linspace(0,1,len(ctrlPs) + 2)
 
@@ -51,7 +50,7 @@ class Spline(object):
             rpI = np.repeat(I,3-k)
             a = ((self.knots[rpI + np.tile(np.arange(1,4-k),leI)] - 
                 np.repeat(u,3-k)) * 
-                self.da[:,k][rpI + np.tile(self.d0[:-(k+1)],leI)]).reshape(-1,1)
+                self.da[:,k][rpI + np.tile(self.d0[:-k-1],leI)]).reshape(-1,1)
 
             d = a * d[np.tile(indx[k:],leI)] + \
                 (1 - a) * d[np.tile(np.roll(indx[k:],1),leI)]
@@ -59,7 +58,7 @@ class Spline(object):
         return d
 
     def plot(self,showCP=True,npoints=200):
-        x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=False))
+        x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=0))
         k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
         plt.plot(x[:,0],x[:,1],color='red')
         plt.hold(True)
