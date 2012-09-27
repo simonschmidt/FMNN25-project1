@@ -59,25 +59,32 @@
 <dd><p>A class that produces splines using de Boors algorithm and takes control
 points as input and can take knot point if the user want to specify them,
 otherwise they are set to be equidistant.</p>
-<p>The class has three functions:</p>
-<ul class="simple">
+<dl class="docutils">
+<dt>The class has three functions:  </dt>
+<dd><ul class="first last simple">
 <li>__init__:   initialize the class and set some global variables</li>
 <li>__call__:   evaluates the spline at a point x or a vector x</li>
 <li>plot:       plots the curve with a given set of points.</li>
 </ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="spline2.Spline.__init__">
 <tt class="descname">__init__</tt><big>(</big><em>ctrlPs</em>, <em>knots=None</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Arguments:</p>
-<ul class="simple">
+<dd><dl class="docutils">
+<dt>Arguments:   </dt>
+<dd><ul class="first last simple">
 <li>ctrlP: a (L x 2) matrix with control points that determines the curve.</li>
 <li>knots: a (L+2) array, if left empty equidistant points will be taken instead.</li>
 </ul>
-<p>Initialize a object of the class and sets the following variables:</p>
-<ul class="simple">
+</dd>
+<dt>Initialize a object of the class and sets the following variables:</dt>
+<dd><ul class="first last simple">
 <li>da: a matrix with the denominators of alpha in the de Boor algorithm.</li>
 <li>d0: an array to make vectorization of the __call__ method to work</li>
 </ul>
+</dd>
+</dl>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">cp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
 <span class="n">gp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
 <span class="n">s</span><span class="o">=</span><span class="n">Spline</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span><span class="n">gp</span><span class="p">)</span> 
@@ -88,12 +95,21 @@ otherwise they are set to be equidistant.</p>
 <dl class="method">
 <dt id="spline2.Spline.__call__">
 <tt class="descname">__call__</tt><big>(</big><em>u</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><div class="highlight-python"><pre>u = s(0.5)
-v = s(linspace(0,1,5))
-print u
-pritn v</pre>
+<dd><dl class="docutils">
+<dt>Arguments:</dt>
+<dd><ul class="first last simple">
+<li>u: either a number or an array to be evaluated, must be in [0,1] or [knot[1], knot[-1]]</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="k">print</span> <span class="n">u</span>
+<span class="k">print</span> <span class="n">v</span>
+</pre></div>
 </div>
-<div class="highlight-none"><div class="highlight"><pre>
+<div class="highlight-none"><div class="highlight"><pre>print u
+print v
 </pre></div>
 </div>
 </dd></dl>

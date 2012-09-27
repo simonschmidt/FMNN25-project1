@@ -8,26 +8,23 @@ class Spline(object):
     points as input and can take knot point if the user want to specify them,
     otherwise they are set to be equidistant. 
     
-    The class has three functions:
-        
-    * __init__:   initialize the class and set some global variables
-    * __call__:   evaluates the spline at a point x or a vector x
-    * plot:       plots the curve with a given set of points. 
+    The class has three functions:  
+        * __init__:   initialize the class and set some global variables
+        * __call__:   evaluates the spline at a point x or a vector x
+        * plot:       plots the curve with a given set of points. 
     
     """
 
     def __init__(self, ctrlPs, knots=None):
         """
 
-        Arguments:
-            
-        * ctrlP: a (L x 2) matrix with control points that determines the curve.
-        * knots: a (L+2) array, if left empty equidistant points will be taken instead.
+        Arguments:   
+            * ctrlP: a (L x 2) matrix with control points that determines the curve.
+            * knots: a (L+2) array, if left empty equidistant points will be taken instead.
         
         Initialize a object of the class and sets the following variables:
-        
-        * da: a matrix with the denominators of alpha in the de Boor algorithm.
-        * d0: an array to make vectorization of the __call__ method to work
+            * da: a matrix with the denominators of alpha in the de Boor algorithm.
+            * d0: an array to make vectorization of the __call__ method to work
         
         .. testcode::
             
@@ -66,14 +63,27 @@ class Spline(object):
 
     def __call__(self,u):
         """
+        Arguments:
+            * u: either a number or an array to be evaluated, must be in [0,1] or [knot[1], knot[-1]]
+        
+        .. doctest::
+            >>> cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
+            >>> gp = array([0,0,0,0,1,1,1,2,2,2,2])
+            >>> s=Spline(cp,gp) 
+            >>> u = s(0.5)
+            >>> u
+            array([[ 4.,  1.]])
+            >>> v = s(linspace(0,1,5)[1:-1])
+        
         .. testcode::
             
             u = s(0.5)
             v = s(linspace(0,1,5))
-            print u
-            pritn v
             
         .. testoutput::
+            
+            print u
+            print v
             
         """
         
