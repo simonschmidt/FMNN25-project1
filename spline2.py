@@ -1,5 +1,5 @@
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 class Spline(object):
     """
@@ -19,15 +19,15 @@ class Spline(object):
         """
 
         Arguments:   
-            * ctrlP: a (L x 2) matrix with control points that determines the 
-              curve.
+            * ctrlP: a (L x n) matrix with control points that determines the 
+                     curve and n is the dimension of the system.
             * knots: a (L+2) array, if left empty equidistant points will be 
-              taken instead.
+                     taken instead with first 3 equal and same for the last 3.
                 * default is set to empty
         
         Initialize a object of the class and sets the following variables:
             * da: a matrix with the denominators of alpha in the de Boor 
-              algorithm.
+                  algorithm.
             * d0: an array to make vectorization of the __call__ method to work
         
         .. testcode::
@@ -46,7 +46,7 @@ class Spline(object):
         else:
             self.knots = np.hstack((np.zeros(2),
                                     np.linspace(0,1,len(ctrlPs)-2),
-                                    np.ones(2))
+                                    np.ones(2)))
 
             #self.knots = np.zeros((len(ctrlPs)+3))
             #self.knots[2:-2] = np.linspace(0,1,len(ctrlPs))[1:-2]
@@ -81,7 +81,7 @@ class Spline(object):
         
         Arguments:
             * u: either a number or an array to be evaluated, must be in [0,1] 
-              or [knot[1], knot[-1]]
+                 or [knot[1], knot[-1]]
         
         Example
         -------
