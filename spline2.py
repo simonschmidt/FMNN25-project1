@@ -1,6 +1,18 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.linalg as sl
+try:
+    import matplotlib.pyplot as plt
+    isplot2d = True
+except ImportError:
+    warning.warn('matplotlib not found, 2D plotting not possible.')
+    isplot2d = False
+try:
+    from enthought.mayavi import mlab as ml
+    isplot3d = True
+except ImportError:
+    warning.warn('Mayavi not found, 3D plotting not possible.')
+    isplot3d = False
+
 
 class Spline(object):
     """
@@ -20,32 +32,40 @@ class Spline(object):
         """
 
         Arguments:   
-            * ctrlP: a (L x n) matrix with control points that determines the 
-                     curve and n is the dimension of the system.
-            * knots: a (L+2) array, if left empty equidistant points will be 
-                     taken instead with first 3 equal and same for the last 3.
-                * default is set to empty
+            * ctrlP: array_like (L x n) object with control points that
+                     determines the curve in n dimensions and where L >= 3.
+            * knots: optional array_like (L+2) object, if left empty
+                     equidistant points will be taken instead with first 3
+                     equal and same for the last 3. If left None, knot points
+                     will be generated.
+                * default is set to None
         
         Initialize a object of the class and sets the following variables:
-            * da: a matrix with the denominators of alpha in the de Boor 
-                  algorithm.
+            * knots: (L+2) numpy array instance of float64 type holding the
+                     knots.
+            * cp: (L x n) numpy array instance of float64 type holding the
+                  control points.
+            * da: a matrix with the inverse of the denominators of alpha in the
+                  de Boor algorithm.
             * d0: an array to make vectorization of the __call__ method to work
         
         .. testcode::
             
             cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
-            s=Spline(cp) 
+            s=Spline(cp)
 
         """
-
+        #If ctrlPs isn't array_like this will return an exception
         self.cp = np.array(ctrlPs,dtype='float')
         if self.cp.size < 3:
-            raise ValueError('There mest be at least 3 control points.')
+            raise ValueError('There must be at least 3 control points.')
         if self.cp.size == self.cp.shape[0]:
             self.cp = self.cp.reshape(-1,1)
-        
+
         if knots != None:
             self.knots = np.array(knots,dtype='float')
+            if (self.knots[1:] > self.knots[:-1]).any():
+                raise ValueError('The knots should be in ascending order.')
             if len(ctrlPs) + 2 != len(knots):
                 raise ValueError('knots is of the wrong size')
 
@@ -54,20 +74,14 @@ class Spline(object):
                                     np.linspace(0,1,len(ctrlPs)-2),
                                     np.ones(2)))
 
-            #self.knots = np.zeros((len(ctrlPs)+3))
-            #self.knots[2:-2] = np.linspace(0,1,len(ctrlPs))[1:-2]
-            #self.knots[0] = self.knots[2]
-            #self.knots[1] = self.knots[2]
-            #self.knots[-1] = self.knots[-3]
-            #self.knots[-2] = self.knots[-3]
-            #self.knots = np.linspace(0,1,len(ctrlPs)+2)
 
         self.da = self._calcDenomAlpha()
         self.d0 = np.array([-2,-1,0,1])
 
     def _calcDenomAlpha(self):
         """
-        Private function that calculates the denominator in the alphas.
+        Private function that calculates the inverse of the denominator in the
+        alphas. The case of 0/0 = 0 is taken care of here.
         """
         m = np.zeros((len(self.knots)-3,3))
 
@@ -82,12 +96,34 @@ class Spline(object):
 
     def __call__(self,u):
         """
-        Uses a vectorized version of the de Boor algorithm to calculate the 
-        position of a specific u.       
+        Calculates the de Boor algorithm in the following manner:
+            - For every value in u, finds the index of the 'hot' interval I.
+            - Finds the corresponding control points d_{I-2},...,d_{I+1}.
+            - Calculates from the formula:
+                
+                d_{i}^{k} = a_{i}^{k-1} * d_{i}^{k-1} + 
+                            (1 - a_{i}^{k-1}) * d_{i+1}^{k-1}
+                          
+              where
+              
+                                knot[i+3-k] - u 
+                a_{i}^{j} = -------------------------
+                             knot[i+3-k] - knot[i+k]
+
+            - repeats for k = 0,1,2.
+
+        Note that some of the indexing has been specially picked to fit memmory
+        array indexing in the best possible way.
+        
+        Since the inverse of the denominator in alpha is already calculated,
+        stored and the exception that 0/0 = 0 taken into consideration there
+        is no need for a check here since it's  simply a multiplication and
+        0*0 = 0 by defult.
+        
         
         Arguments:
-            * u: either a number or an array to be evaluated, must be in [0,1] 
-                 or [knot[1], knot[-1]]
+            * u: either a number or an array to be evaluated, must be inside
+                 the interval [knot[2], knot[-2]).
         
         Example
         -------
@@ -107,23 +143,32 @@ class Spline(object):
             
         """
         
+        #If input is not array already it's converted for convenience.
         if not isinstance(u,np.ndarray):
-            u = np.array([u])
+            if isinstance(u,(int,float,long)):
+                u = np.array([u],dtype='float')
+            else:
+                u = np.array(u,dtype='float')
             
         if (u < self.knots[2]).any() or (u >= self.knots[-3]).any():
             raise ValueError('u out of range!')
 
-        I = np.searchsorted(self.knots[1:-3], u,side='right')
+        #I is array with index of the 'hot' interval for every value past in.
+        I = np.searchsorted(self.knots[1:-2], u,side='right')
         leI = len(I)
 
+        #For every u_i we have that d[i*4:(i+1)*4] = d_{I[i]-2},...,d_{I[i]+1}
         d = self.cp[np.repeat(I,4) + np.tile(self.d0,leI)]
+
+        #Used for indexing: take 3, skip 1, repeat
         indx = np.ones(4,dtype='bool')
         indx[-1] = False
 
         for k in xrange(3):
-            rpI = np.repeat(I,3-k)
+            rpI = I.repeat(3-k)
+
             a = ((self.knots[rpI + np.tile(np.arange(1,4-k),leI)] - 
-                np.repeat(u,3-k)) * 
+                u.repeat(3-k)) * 
                 self.da[:,k][rpI + np.tile(self.d0[:-k-1],leI)]).reshape(-1,1)
 
             d = a * d[np.tile(indx[k:],leI)] + \
@@ -131,7 +176,45 @@ class Spline(object):
 
         return d
 
-    def plot(self,showCP=True,npoints=200):
+    def plot(self, axes=None, showCP=True, npoints=200):
+        if axes == None:
+            if self.cp.shape[1] == 2:
+                self._plot2d((0,1),showCP,npoints)
+            elif self.cp.shape[1] == 3:
+                self._plot3d((0,1,2),showCP,npoints)
+            elif self.cp.shape[1] == 1:
+                pass
+            else:
+                raise ValueError("Can't plot %i dimensions, specify what axes"
+                                 " should be used." % self.cp.shape[1])
+        else:
+            if len(axes) == 2:
+                self._plot2d(axes,showCP,npoints)
+            elif len(axes) == 3:
+                self._plot3d(axes,showCP,npoints)
+            elif len(axes) == 1:
+                self._plot1d(axes,showCP,npoints)
+            else:
+                raise ValueError("Can't plot %i dimensions, number of axes"
+                                 " must be 1, 2 or 3." % len(axes))
+
+    def _plot1d(self, a, showCP, npoints):
+    
+        if not isplot2d:
+            raise NotImplementedError('Lacking matplotlib to do the plotting.')
+            
+        x = np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=0)
+        k = np.hstack((self.knots[2:-3],self.knots[-3]-1e-15))
+        plt.plot(x,self(x)[:,a[0]], c='blue')
+        plt.hold(True)
+        plt.plot(k,self(k)[:,a[0]],'*', c='blue')
+        
+        if showCP:
+            plt.plot(np.ones(len(self.cp))*x[0], self.cp[:,a[0]],
+                     'o', color='blue')
+        plt.show()
+
+    def _plot2d(self, a, showCP, npoints):
         """
         A method to plot the spline by calling a range of points. Plotting is only 
         possible when the dimension of the control points is equal to 2. 
@@ -144,24 +227,46 @@ class Spline(object):
                 * default is set to 200
 
         """
-        if not self.cp.shape[1] == 2:
-            raise ValueError('Sorry but I only plot 2d')
+        if not isplot2d:
+            raise NotImplementedError('Lacking matplotlib to do the plotting.')
         
         x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=0))
         k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
-        plt.plot(x[:,0],x[:,1],color='red')
+        plt.plot(x[:,a[0]],x[:,a[1]],color='red')
         plt.hold(True)
-        plt.plot(k[:,0],k[:,1],'x',color='red')
+        plt.plot(k[:,a[0]],k[:,a[1]],'*',color='red')
         if showCP:
-            plt.plot(self.cp[:,0],self.cp[:,1],'--',color='blue')
-            plt.plot(self.cp[:,0],self.cp[:,1],'o',color='blue')
-        xmin,xmax = self.cp[:,0].min(), self.cp[:,0].max()
-        ymin,ymax = self.cp[:,1].min(), self.cp[:,1].max()
+            plt.plot(self.cp[:,a[0]],self.cp[:,a[1]],'--',color='blue')
+            plt.plot(self.cp[:,a[0]],self.cp[:,a[1]],'o',color='blue')
+        xmin,xmax = self.cp[:,a[0]].min(), self.cp[:,a[0]].max()
+        ymin,ymax = self.cp[:,a[1]].min(), self.cp[:,a[1]].max()
         xbrdr = (xmax - xmin)*0.05
         ybrdr = (ymax - ymin)*0.05
         plt.xlim(xmin - xbrdr, xmax + xbrdr)
         plt.ylim(ymin - ybrdr, ymax + ybrdr)
         plt.show()
+        
+    def _plot3d(self, a, showCP, npoints):
+        
+        
+        if not isplot3d:
+            raise NotImplementedError('Lacking Mayavi to do the plotting.')
+            
+        x = self(np.linspace(self.knots[2],self.knots[-3],npoints,endpoint=0))
+        k = self(np.hstack((self.knots[2:-3],self.knots[-3]-1e-15)))
+        ml.plot3d(x[:,a[0]],x[:,a[1]],x[:,a[2]],color=(.5,.2,.3))
+        ml.points3d(k[:,a[0]],k[:,a[1]],k[:,a[2]],
+                    color=(.5,.2,.3),scale_factor=.3)
+        
+        if showCP:
+            ml.plot3d(self.cp[:,a[0]], self.cp[:,a[1]],
+                      self.cp[:,a[2]], color=(.2,.4,.4))
+            ml.points3d(self.cp[:,a[0]], self.cp[:,a[1]],
+                        self.cp[:,a[2]], color=(.2,.4,.4), scale_factor=.3)
+        ml.show()
+        
+    def getInterval(self):
+        return self.knots[2],self.knots[-3]
 
 def basisFunction(index, knotP):
     """
