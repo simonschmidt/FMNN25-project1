@@ -37,6 +37,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="index.html" title="Welcome to Splines with de Boors Algorithm’s documentation!"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Splines with de Boors Algorithm 1 documentation</a> &raquo;</li> 
@@ -48,8 +51,128 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="spline-de-boor">
-<h1>Spline &#8211; de Boor<a class="headerlink" href="#spline-de-boor" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-spline2">
+<span id="spline-de-boor"></span><h1>Spline &#8211; de Boor<a class="headerlink" href="#module-spline2" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="spline2.Spline">
+<em class="property">class </em><tt class="descclassname">spline2.</tt><tt class="descname">Spline</tt><big>(</big><em>ctrlPs</em>, <em>knots=None</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class that produces splines using de Boors algorithm and takes control
+points as input and can take knot point if the user want to specify them,
+otherwise they are set to be equidistant.</p>
+<dl class="docutils">
+<dt>The class has three functions:  </dt>
+<dd><ul class="first last simple">
+<li>__init__:   initialize the class and set some global variables</li>
+<li>__call__:   evaluates the spline at a point x or a vector x</li>
+<li>plot:       plots the curve with a given set of points.</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="spline2.Spline.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>ctrlPs</em>, <em>knots=None</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Arguments:   </dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>ctrlP: a (L x n) matrix with control points that determines the </dt>
+<dd><p class="first last">curve and n is the dimension of the system.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>knots: a (L+2) array, if left empty equidistant points will be </dt>
+<dd><blockquote class="first">
+<div><p>taken instead with first 3 equal and same for the last 3.</p>
+</div></blockquote>
+<ul class="last simple">
+<li>default is set to empty</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Initialize a object of the class and sets the following variables:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>da: a matrix with the denominators of alpha in the de Boor </dt>
+<dd><p class="first last">algorithm.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">d0: an array to make vectorization of the __call__ method to work</p>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">cp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">s</span><span class="o">=</span><span class="n">Spline</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span> 
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="spline2.Spline.__call__">
+<tt class="descname">__call__</tt><big>(</big><em>u</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses a vectorized version of the de Boor algorithm to calculate the 
+position of a specific u.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>u: either a number or an array to be evaluated, must be in [0,1] </dt>
+<dd><p class="first last">or [knot[1], knot[-1]]</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">v</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[[ 4.  1.]]
+
+[[ 0.33333333  1.83333333]
+ [ 4.          1.        ]]
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="spline2.Spline.plot">
+<tt class="descname">plot</tt><big>(</big><em>showCP=True</em>, <em>npoints=200</em><big>)</big><a class="headerlink" href="#spline2.Spline.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method to plot the spline by calling a range of points. Plotting is only 
+possible when the dimension of the control points is equal to 2. 
+Arguments:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>showCP: boolean to control the plotting of control points</dt>
+<dd><ul class="first last simple">
+<li>default is set to True</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>npoints: number of points to plot</dt>
+<dd><ul class="first last simple">
+<li>default is set to 200</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -89,6 +212,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Splines with de Boors Algorithm’s documentation!"
              >previous</a> |</li>
