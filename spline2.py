@@ -280,14 +280,16 @@ def basisFunction(index, knotP):
 
     def n(x,k=3,i=index):
         if k==0:
-            return 1.*(n.knotP[i]<=x<n.knotP[i+1])
+            return 1.*((n.knotP[i] <= x) * (x < n.knotP[i+1]) +
+                       (n.knotP[i+1] == n.knotP[-1]) * (x == n.knotP[-1]))
         den1 = (n.knotP[i+k] - n.knotP[i])
         den2 = (n.knotP[i+k+1] - n.knotP[i+1])
         if den1 != 0:
             den1 = 1./den1
         if den2 != 0:
             den2 = 1./den2
-        return (x - n.knotP[i])*den1*n(x,k-1,i) + (1 - (x-n.knotP[i+1])*den2)*n(x,k-1,i+1)
+        return (x - n.knotP[i])*den1*n(x,k-1,i) + \
+               (n.knotP[i+k+1]-x)*den2*n(x,k-1,i+1)
     n.knotP = knotP
 
     return n
@@ -305,18 +307,17 @@ def interpolation(interP,knots=None):
     if knots != None:
             knots = np.array(knots,dtype='float')
             if len(ctrlP) + 2 != len(knots):
-                raise ValueError('knots is of the wrong size')
+                raise ValueError('Knots is of the wrong size')
 
     else:
-        knots = np.hstack((np.zeros(2),
-                                    np.linspace(0,1,len(ctrlP)+2),
-                                    np.ones(2)))
-    xi=(knots[2:-4]+knots[3:-3]+knots[4:-2])/3
+        knots = np.hstack((np.zeros(3), np.linspace(0,1,len(ctrlP)-2),
+                           np.ones(3)))
+    xi=(knots[1:-3]+knots[2:-2]+knots[3:-1])/3
     nMatrix=np.zeros((len(xi),len(xi)))
     for i in xrange(len(xi)):
         fun=basisFunction(i,knots)
-        for k in xrange(len(xi)):
-            nMatrix[k,i]=fun(xi[k],3)
+        nMatrix[:,i]=fun(xi,3)
+    #nMatrix[-1,-1] = 1.
     print nMatrix
 
     ctrlP[:,0]=sl.solve(nMatrix,interP[:,0])
