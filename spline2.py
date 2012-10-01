@@ -328,6 +328,28 @@ def interpolation(interP,knots=None):
     
     return Spline(ctrlP)
 
+def getN(k, knots=None):
+    """
+    Uses the Spline class to calculate the k:th basis function and returns it as a one 
+    variable function on the intervall (knot[1],knot[-1]).
+    Arguments:
+        * k: which basis function is wanted. Must be an integer in the intervall [0,len(knots)-1]
+        * knots: an array of knot points for the basis function.
+            * default: 34 equidistant points in [0,1]
+    """
+    if k % 1:
+        raise ValueError("expected k to be integer")
+    if knots == None:        
+        ncp = 30
+    else:
+        ncp = len(knots) - 2
+    ctrlP = np.zeros((ncp,2))
+    ctrlP[k,:] = np.array([1,1])
+    s = Spline(ctrlP, knots)
+    def n(u):
+        return s(u)
+    return n
+    
     
 # Some examples
 def ex1():
@@ -345,3 +367,8 @@ def ex3():
     s=interpolation(cp)
     s.plot()
     plot(cp[:,0],cp[:,1])
+
+def ex4():
+    n=getN(10)
+    plt.plot(linspace(0,1,100), n(linspace(0.2,0.7,100)))
+    
