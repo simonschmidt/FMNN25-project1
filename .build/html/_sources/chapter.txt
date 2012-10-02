@@ -1,0 +1,9 @@
+Spline -- de Boor
+=================
+.. automodule:: spline2
+
+.. autoclass:: Spline
+	:members: __init__, __call__, plot
+	:undoc-members:
+	:special-members:
+

@@ -3,7 +3,12 @@ Spline -- de Boor
 .. automodule:: spline2
 
 .. autoclass:: Spline
-	:members: __init__, __call__, plot
+	:members: __init__, __call__, plot, _calcDenomAlpha, _plot1d, _plot2d, _plot3d, getInterval 
 	:undoc-members:
 	:special-members:
 
+.. autofunction:: getN
+
+.. autofunction:: interpolation
+
+.. autofunction:: basisFunction

@@ -120,8 +120,7 @@ will be generated.</p>
 </ul>
 </dd>
 </dl>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cp</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">=</span><span class="n">Spline</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre>
 </pre></div>
 </div>
 </dd></dl>
@@ -131,30 +130,25 @@ will be generated.</p>
 <tt class="descname">__call__</tt><big>(</big><em>u</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Calculates the de Boor algorithm in the following manner:</dt>
-<dd><ul class="first last">
-<li><p class="first">For every value in u, finds the index of the &#8216;hot&#8217; interval I.</p>
-</li>
-<li><p class="first">Finds the corresponding control points d_{I-2},...,d_{I+1}.</p>
-</li>
-<li><p class="first">Calculates from the formula:</p>
-<blockquote>
-<div><div class="math">
-\[d_{i}^{k} = a_{i}^{k-1}  d_{i}^{k-1} + (1 - a_{i}^{k-1}) d_{i+1}^{k-1}  \]</div>
-</div></blockquote>
-<p>where</p>
+<dd><ul class="first simple">
+<li>For every value in u, finds the index of the &#8216;hot&#8217; interval I.</li>
+<li>Finds the corresponding control points d_{I-2},...,d_{I+1}.</li>
+<li>Calculates from the formula:</li>
+</ul>
 <div class="math">
-\[a_{i}^{j} = \]</div>
-</li>
+\[:nowrap:
+  d_{i}^{k} = a_{i}^{k-1} *d_{i}^{k-1} + 
+              (1 - a_{i}^{k-1}) *d_{i+1}^{k-1}  \]\[where   
+.. math::
+  :nowrap:
+                  knot[i+3-k] - u 
+  a_{i}^{j} = -------------------------
+               knot[i+3-k] - knot[i+k]\]</div>
+<ul class="last simple">
+<li>repeats for k = 0,1,2.</li>
 </ul>
 </dd>
 </dl>
-<p>rac{knot[i+3-k] - u}{knot[i+3-k] - knot[i+k]}</p>
-<blockquote>
-<div><blockquote>
-<div><ul class="simple">
-<li>repeats for k = 0,1,2.</li>
-</ul>
-</div></blockquote>
 <p>Note that some of the indexing has been specially picked to fit memmory
 array indexing in the best possible way.</p>
 <p>Since the inverse of the denominator in alpha is already calculated,
@@ -185,128 +179,13 @@ is no need for a check here since it&#8217;s  simply a multiplication and
  [ 4.          1.        ]]
 </pre></div>
 </div>
-</div></blockquote>
 </dd></dl>
 
 <dl class="method">
 <dt id="spline2.Spline.plot">
-<tt class="descname">plot</tt><big>(</big><em>axes=None</em>, <em>showCP=True</em>, <em>npoints=200</em><big>)</big><a class="headerlink" href="#spline2.Spline.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>axes=None</em>, <em>showCP=True</em>, <em>npoints=200</em><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="spline2.Spline._calcDenomAlpha">
-<tt class="descname">_calcDenomAlpha</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spline2.html#Spline._calcDenomAlpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spline2.Spline._calcDenomAlpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Private function that calculates the inverse of the denominator in the
-alphas. The case of 0/0 = 0 is taken care of here.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spline2.Spline._plot1d">
-<tt class="descname">_plot1d</tt><big>(</big><em>a</em>, <em>showCP</em>, <em>npoints</em><big>)</big><a class="headerlink" href="#spline2.Spline._plot1d" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="spline2.Spline._plot2d">
-<tt class="descname">_plot2d</tt><big>(</big><em>a</em>, <em>showCP</em>, <em>npoints</em><big>)</big><a class="headerlink" href="#spline2.Spline._plot2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>A method to plot the spline by calling a range of points. Plotting is only 
-possible when the dimension of the control points is equal to 2. 
-Arguments:</p>
-<blockquote>
-<div><ul>
-<li><dl class="first docutils">
-<dt>showCP: boolean to control the plotting of control points</dt>
-<dd><ul class="first last simple">
-<li>default is set to True</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>npoints: number of points to plot</dt>
-<dd><ul class="first last simple">
-<li>default is set to 200</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="spline2.Spline._plot3d">
-<tt class="descname">_plot3d</tt><big>(</big><em>a</em>, <em>showCP</em>, <em>npoints</em><big>)</big><a class="headerlink" href="#spline2.Spline._plot3d" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="spline2.Spline.getInterval">
-<tt class="descname">getInterval</tt><big>(</big><big>)</big><a class="headerlink" href="#spline2.Spline.getInterval" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="spline2.getN">
-<tt class="descclassname">spline2.</tt><tt class="descname">getN</tt><big>(</big><em>k</em>, <em>knots=None</em><big>)</big><a class="headerlink" href="#spline2.getN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the Spline class to calculate the k:th basis function and returns it as a one 
-variable function on the intervall (knot[1],knot[-1]).
-Arguments:</p>
-<blockquote>
-<div><ul>
-<li><p class="first">k: which basis function is wanted. Must be an integer in the intervall [0,len(knots)-1]</p>
-</li>
-<li><p class="first">knots: an array of knot points for the basis function.</p>
-<blockquote>
-<div><ul class="simple">
-<li>default: 34 equidistant points in [0,1]</li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="function">
-<dt id="spline2.interpolation">
-<tt class="descclassname">spline2.</tt><tt class="descname">interpolation</tt><big>(</big><em>interP</em>, <em>knots=None</em><big>)</big><a class="headerlink" href="#spline2.interpolation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interpolates the given points and returns an object of the Spline class 
-Arguments:</p>
-<blockquote>
-<div><ul>
-<li><p class="first">interP: interpolation points, (L x 2) matrix</p>
-</li>
-<li><dl class="first docutils">
-<dt>knotP: knot points, (L+4 x 1) matrix</dt>
-<dd><ul class="first last simple">
-<li>default: equidistant on [0,1]</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="function">
-<dt id="spline2.basisFunction">
-<tt class="descclassname">spline2.</tt><tt class="descname">basisFunction</tt><big>(</big><em>index</em>, <em>knotP</em><big>)</big><a class="headerlink" href="#spline2.basisFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates the basis function N for j given the knot points and returns
-a function
-Arguments:</p>
-<blockquote>
-<div><ul>
-<li><p class="first">index: index</p>
-</li>
-<li><dl class="first docutils">
-<dt>knotP: knot points, (L+4 x 1) matrix</dt>
-<dd><ul class="first last simple">
-<li>default: equidistant on [0,1]</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</div></blockquote>
 </dd></dl>
 
 </div>
