@@ -179,6 +179,9 @@ class Spline(object):
         return d
 
     def plot(self, axes=None, showCP=True, npoints=200):
+        """
+            Plot function.
+        """
         if axes == None:
             if self.cp.shape[1] == 2:
                 self._plot2d((0,1),showCP,npoints)
@@ -201,6 +204,9 @@ class Spline(object):
                                  " must be 1, 2 or 3." % len(axes))
 
     def _plot1d(self, a, showCP, npoints):
+        """
+            Internal plot function, use Spline.plot().
+        """
     
         if not isplot2d:
             raise NotImplementedError('Lacking matplotlib to do the plotting.')
@@ -218,16 +224,7 @@ class Spline(object):
 
     def _plot2d(self, a, showCP, npoints):
         """
-        A method to plot the spline by calling a range of points. Plotting is only 
-        possible when the dimension of the control points is equal to 2. 
-        Arguments:
-            
-            * showCP: boolean to control the plotting of control points
-                * default is set to True
-                
-            * npoints: number of points to plot
-                * default is set to 200
-
+            Internal plot function, use Spline.plot().
         """
         if not isplot2d:
             raise NotImplementedError('Lacking matplotlib to do the plotting.')
@@ -250,7 +247,9 @@ class Spline(object):
         
     def _plot3d(self, a, showCP, npoints):
         
-        
+        """
+            Internal plot function, use Spline.plot().
+        """
         if not isplot3d:
             raise NotImplementedError('Lacking Mayavi to do the plotting.')
             
@@ -269,6 +268,8 @@ class Spline(object):
         
     def getInterval(self):
         return self.knots[2],self.knots[-3]
+
+
 
 def basisFunction(index, knotP):
     """
