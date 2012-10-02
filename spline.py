@@ -309,7 +309,7 @@ def interpolation(interP,knots=None):
     ctrlP=np.zeros((nip,2))
     if knots != None:
             knots = np.array(knots,dtype='float')
-            if len(ctrlP) + 2 != len(knots):
+            if len(ctrlP) + 4 != len(knots):
                 raise ValueError('Knots is of the wrong size')
 
     else:
@@ -343,18 +343,15 @@ def getN(k, knots=None):
     """
     if k % 1:
         raise ValueError("expected k to be integer")
-    if knots == None:        
+    if knots == None:
         ncp = 30
     else:
         ncp = len(knots) - 2
     ctrlP = np.zeros((ncp,2))
     ctrlP[k,:] = np.array([1,1])
-    s = Spline(ctrlP, knots)
-    def n(u):
-        return s(u)
-    return n
-    
-    
+    return Spline(ctrlP, knots)
+
+
 # Some examples
 def ex1():
     cp = np.array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
