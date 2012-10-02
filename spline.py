@@ -308,7 +308,7 @@ def interpolation(interP,knots=None):
     ctrlP=np.zeros((nip,2))
     if knots != None:
             knots = np.array(knots,dtype='float')
-            if len(ctrlP) + 2 != len(knots):
+            if len(ctrlP) + 4 != len(knots):
                 raise ValueError('Knots is of the wrong size')
 
     else:
