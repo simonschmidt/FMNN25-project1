@@ -1,4 +1,4 @@
-
 *.pyc
-
 spline2.pyc
+.DS_Store
+.build
