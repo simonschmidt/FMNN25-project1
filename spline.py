@@ -1,6 +1,7 @@
+import warnings
+
 import numpy as np
 import scipy.linalg as sl
-import warnings
 try:
     import matplotlib.pyplot as plt
     isplot2d = True
@@ -31,6 +32,7 @@ class Spline(object):
 
     def __init__(self, ctrlPs, knots=None):
         """
+
         Arguments:   
             * ctrlP: array_like (L x n) object with control points that
                      determines the curve in n dimensions and where L >= 3.
@@ -38,9 +40,8 @@ class Spline(object):
                      equidistant points will be taken instead with first 3
                      equal and same for the last 3. If left None, knot points
                      will be generated.
-                
-                * default is set to 
-                
+                * default is set to None
+        
         Initialize a object of the class and sets the following variables:
             * knots: (L+2) numpy array instance of float64 type holding the
                      knots.
@@ -49,12 +50,12 @@ class Spline(object):
             * da: a matrix with the inverse of the denominators of alpha in the
                   de Boor algorithm.
             * d0: an array to make vectorization of the __call__ method to work
+        
+        .. testcode::
             
-        .. testcode::   
-            
-            >>> cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
-            >>> s=Spline(cp)
-            
+            cp = array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
+            s=Spline(cp)
+
         """
         #If ctrlPs isn't array_like this will return an exception
         self.cp = np.array(ctrlPs,dtype='float')
@@ -98,21 +99,21 @@ class Spline(object):
     def __call__(self,u):
         """
         Calculates the de Boor algorithm in the following manner:
-            * For every value in u, finds the index of the 'hot' interval I.
-            * Finds the corresponding control points d_{I-2},...,d_{I+1}.
-            * Calculates from the formula:  
+            - For every value in u, finds the index of the 'hot' interval I.
+            - Finds the corresponding control points d_{I-2},...,d_{I+1}.
+            - Calculates from the formula:
                 
-                .. math::
-                    d_{i}^{k} = a_{i}^{k-1}  d_{i}^{k-1} + (1 - a_{i}^{k-1}) d_{i+1}^{k-1}  
-                            
-              where  
+                d_{i}^{k} = a_{i}^{k-1} * d_{i}^{k-1} + 
+                            (1 - a_{i}^{k-1}) * d_{i+1}^{k-1}
+                          
+              where
               
-              .. math::
-                  
-                  a_{i}^{j} = \frac{knot[i+3-k] - u}{knot[i+3-k] - knot[i+k]}
-                  
-            * repeats for k = 0,1,2.
-            
+                                knot[i+3-k] - u 
+                a_{i}^{j} = -------------------------
+                             knot[i+3-k] - knot[i+k]
+
+            - repeats for k = 0,1,2.
+
         Note that some of the indexing has been specially picked to fit memmory
         array indexing in the best possible way.
         
@@ -125,7 +126,9 @@ class Spline(object):
         Arguments:
             * u: either a number or an array to be evaluated, must be inside
                  the interval [knot[2], knot[-2]).
-
+        
+        Example
+        -------
         .. testcode::
             
             >>> u = s(0.5)
@@ -139,7 +142,7 @@ class Spline(object):
             
             [[ 0.33333333  1.83333333]
              [ 4.          1.        ]]
-             
+            
         """
         
         #If input is not array already it's converted for convenience.
@@ -176,17 +179,6 @@ class Spline(object):
         return d
 
     def plot(self, axes=None, showCP=True, npoints=200):
-        """
-        Checks the dimension of the control points and then runs the appropriate
-        function for that specific dimension. 
-        Arguments:
-            
-            * axes: 
-            * showCP: turn on or off the viewing of the control points, boolean value
-            * npoints: the number of points to evaluate the spline at, more points
-                gives a smoother plot but takes longer time to evaluate.
-        
-        """
         if axes == None:
             if self.cp.shape[1] == 2:
                 self._plot2d((0,1),showCP,npoints)
@@ -283,10 +275,8 @@ def basisFunction(index, knotP):
     Evaluates the basis function N for j given the knot points and returns
     a function
     Arguments:
-        
         * index: index
         * knotP: knot points, (L+4 x 1) matrix
-        
             * default: equidistant on [0,1]
     """
 
@@ -310,10 +300,8 @@ def interpolation(interP,knots=None):
     """
         Interpolates the given points and returns an object of the Spline class 
         Arguments:
-            
             * interP: interpolation points, (L x 2) matrix
             * knotP: knot points, (L+4 x 1) matrix
-            
                 * default: equidistant on [0,1]
     """
     nip=len(interP)
@@ -344,15 +332,13 @@ def interpolation(interP,knots=None):
 
 def getN(k, knots=None):
     """
-    Uses the Spline class to calculate the k:th basis function and returns it as a one 
-    variable function on the intervall (knot[1],knot[-1]).
+    Uses the Spline class to calculate the k:th basis function and returns it
+    as a one variable function on the intervall (knot[1],knot[-1]).
     Arguments:
-        
-        * k: which basis function is wanted. Must be an integer in the intervall [0,len(knots)-1]
+        * k: which basis function is wanted. Must be an integer in the
+             intervall [0,len(knots)-1]
         * knots: an array of knot points for the basis function.
-        
             * default: 34 equidistant points in [0,1]
-            
     """
     if k % 1:
         raise ValueError("expected k to be integer")
@@ -375,7 +361,7 @@ def ex1():
     s.plot()
 
 def ex2(k=12):
-    cp = np.randn(k,2)
+    cp = randn(k,2)
     s = Spline(cp)
     s.plot()
     
@@ -383,14 +369,9 @@ def ex3():
     cp = np.array([ [0,0],[0,2],[2,3],[4,0],[6,3],[8,2],[8,0]])
     s=interpolation(cp)
     s.plot()
-    plt.plot(cp[:,0],cp[:,1])
+    plot(cp[:,0],cp[:,1])
 
 def ex4():
     n=getN(10)
-<<<<<<< HEAD
-    plt.plot(np.linspace(0,1,100), n(np.linspace(0.2,0.7,100)))
-    
-=======
     plt.plot(linspace(0,1,100), n(linspace(0.2,0.7,100)))
     
->>>>>>> 91ab56066c2398863aaf984a7047e009713c1811
