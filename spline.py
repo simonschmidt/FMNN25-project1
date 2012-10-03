@@ -182,9 +182,7 @@ class Spline(object):
 
     def plot(self, axes=None, showCP=True, npoints=200):
         """
-<<<<<<< HEAD
-            Plot function.
-=======
+
         A plotting method that doesn't plot, it checks the dimension of the control 
         points and then run the corresponding method to plot that dimension. At
         the moment it only support 1D, 2D and 3D, for the first two matploltlib
@@ -192,7 +190,6 @@ class Spline(object):
         
         For the 1D case the value of the spline s(u) is plotted on the y-axis and the 
         u:s on the x-axis. 
->>>>>>> some documentation
         """
         if axes == None:
             if self.cp.shape[1] == 2:
@@ -338,14 +335,9 @@ def interpolation(interP,knots=None):
     for i in xrange(len(xi)):
         fun=basisFunction(i,knots)
         nMatrix[:,i]=fun(xi,3)
-    #nMatrix[-1,-1] = 1.
-    print nMatrix
 
     ctrlP[:,0]=sl.solve(nMatrix,interP[:,0])
     ctrlP[:,1]=sl.solve(nMatrix,interP[:,1])
-    
-    print
-    print ctrlP
     
     return Spline(ctrlP)
 
