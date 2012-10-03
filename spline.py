@@ -188,7 +188,7 @@ class Spline(object):
             elif self.cp.shape[1] == 3:
                 self._plot3d((0,1,2),showCP,npoints)
             elif self.cp.shape[1] == 1:
-                pass
+                self._plot1d((0,),showCP,npoints)
             else:
                 raise ValueError("Can't plot %i dimensions, specify what axes"
                                  " should be used." % self.cp.shape[1])
