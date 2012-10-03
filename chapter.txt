@@ -1,9 +1,9 @@
 Spline -- de Boor
 =================
-.. automodule:: spline2
+.. automodule:: spline
 
 .. autoclass:: Spline
-	:members: __init__, __call__, plot, _calcDenomAlpha, _plot1d, _plot2d, _plot3d, getInterval 
+	:members: __init__, __call__, plot
 	:undoc-members:
 	:special-members:
 

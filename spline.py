@@ -34,15 +34,18 @@ class Spline(object):
         """
 
         Arguments:   
+            
             * ctrlP: array_like (L x n) object with control points that
                      determines the curve in n dimensions and where L >= 3.
             * knots: optional array_like (L+2) object, if left empty
                      equidistant points will be taken instead with first 3
                      equal and same for the last 3. If left None, knot points
                      will be generated.
+                     
                 * default is set to None
         
         Initialize a object of the class and sets the following variables:
+            
             * knots: (L+2) numpy array instance of float64 type holding the
                      knots.
             * cp: (L x n) numpy array instance of float64 type holding the
@@ -99,21 +102,21 @@ class Spline(object):
     def __call__(self,u):
         """
         Calculates the de Boor algorithm in the following manner:
-            - For every value in u, finds the index of the 'hot' interval I.
-            - Finds the corresponding control points d_{I-2},...,d_{I+1}.
-            - Calculates from the formula:
+            * For every value in u, finds the index of the 'hot' interval I.
+            * Finds the corresponding control points d_{I-2},...,d_{I+1}.
+            * Calculates from the formula:  
                 
-                d_{i}^{k} = a_{i}^{k-1} * d_{i}^{k-1} + 
-                            (1 - a_{i}^{k-1}) * d_{i+1}^{k-1}
-                          
-              where
+                .. math::
+                    d_{i}^{k} = a_{i}^{k-1}  d_{i}^{k-1} + (1 - a_{i}^{k-1}) d_{i+1}^{k-1}  
+                            
+              where  
               
-                                knot[i+3-k] - u 
-                a_{i}^{j} = -------------------------
-                             knot[i+3-k] - knot[i+k]
-
-            - repeats for k = 0,1,2.
-
+              .. math::
+                  
+                  a_{i}^{j} = \\frac{knot[i+3-k] - u}{knot[i+3-k] - knot[i+k]}
+                  
+            * repeats for k = 0,1,2.
+            
         Note that some of the indexing has been specially picked to fit memmory
         array indexing in the best possible way.
         
@@ -126,9 +129,7 @@ class Spline(object):
         Arguments:
             * u: either a number or an array to be evaluated, must be inside
                  the interval [knot[2], knot[-2]).
-        
-        Example
-        -------
+
         .. testcode::
             
             >>> u = s(0.5)
@@ -142,8 +143,9 @@ class Spline(object):
             
             [[ 0.33333333  1.83333333]
              [ 4.          1.        ]]
-            
+             
         """
+
         
         #If input is not array already it's converted for convenience.
         if not isinstance(u,np.ndarray):
@@ -180,7 +182,17 @@ class Spline(object):
 
     def plot(self, axes=None, showCP=True, npoints=200):
         """
+<<<<<<< HEAD
             Plot function.
+=======
+        A plotting method that doesn't plot, it checks the dimension of the control 
+        points and then run the corresponding method to plot that dimension. At
+        the moment it only support 1D, 2D and 3D, for the first two matploltlib
+        is needed and for the last one Mayavi is used. 
+        
+        For the 1D case the value of the spline s(u) is plotted on the y-axis and the 
+        u:s on the x-axis. 
+>>>>>>> some documentation
         """
         if axes == None:
             if self.cp.shape[1] == 2:
@@ -276,9 +288,12 @@ def basisFunction(index, knotP):
     Evaluates the basis function N for j given the knot points and returns
     a function
     Arguments:
+        
         * index: index
         * knotP: knot points, (L+4 x 1) matrix
+        
             * default: equidistant on [0,1]
+            
     """
 
     def n(x,k=3,i=index):
@@ -299,11 +314,14 @@ def basisFunction(index, knotP):
     
 def interpolation(interP,knots=None):
     """
-        Interpolates the given points and returns an object of the Spline class 
-        Arguments:
-            * interP: interpolation points, (L x 2) matrix
-            * knotP: knot points, (L+4 x 1) matrix
-                * default: equidistant on [0,1]
+    Interpolates the given points and returns an object of the Spline class 
+    Arguments:
+    
+        * interP: interpolation points, (L x 2) matrix
+        * knotP: knot points, (L+4 x 1) matrix
+        
+            * default: equidistant on [0,1]
+                
     """
     nip=len(interP)
     ctrlP=np.zeros((nip,2))
@@ -336,10 +354,13 @@ def getN(k, knots=None):
     Uses the Spline class to calculate the k:th basis function and returns it
     as a one variable function on the intervall (knot[1],knot[-1]).
     Arguments:
+        
         * k: which basis function is wanted. Must be an integer in the
              intervall [0,len(knots)-1]
         * knots: an array of knot points for the basis function.
+        
             * default: 34 equidistant points in [0,1]
+            
     """
     if k % 1:
         raise ValueError("expected k to be integer")
