@@ -308,7 +308,7 @@ def basisFunction(index, knotP):
     n.knotP = knotP
 
     return n
-    
+
 def interpolation(interP,knots=None):
     """
     Interpolates the given points and returns an object of the Spline class 
